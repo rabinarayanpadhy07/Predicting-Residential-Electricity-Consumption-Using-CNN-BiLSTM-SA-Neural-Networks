@@ -1,0 +1,18 @@
+On branch main
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   Dataset/testData.csv
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	diag.bat
+	status.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+35d0519 Added large dataset using Git LFS
+17e1ff6  Added Code
+99632b6 Remove large dataset
+fb31ada  Added Code
+origin	https://github.com/rabinarayanpadhy07/Predicting-Residential-Electricity-Consumption-Using-CNN-BiLSTM-SA-Neural-Networks.git (fetch)
+origin	https://github.com/rabinarayanpadhy07/Predicting-Residential-Electricity-Consumption-Using-CNN-BiLSTM-SA-Neural-Networks.git (push)
