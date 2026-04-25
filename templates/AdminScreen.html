@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Residential Electricity Consumption</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='default.css') }}">
+</head>
+
+<body>
+
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <h2>Electricity Forecaster</h2>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="Predict">Forecasting Tool</a></li>
+                    <li><a href="index">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="wrapper">
+        <div class="card">
+            <div class="featured-image-container">
+                <img src="{{ url_for('static', filename='images/webalgoimg.png') }}"
+                    alt="Electricity Forecasting Graphic">
+            </div>
+
+
+            <h1 class="card-title">Admin Dashboard</h1>
+
+            {% if msg %}
+            <div class="message success">
+                {{ msg|safe }}
+            </div>
+            {% endif %}
+
+            <p>
+                Welcome to the Admin Dashboard. You are successfully logged in. Use the Forecasting Tool below to upload
+                test data and predict residential electricity consumption using our CNN-BiLSTM-SA Neural Network model.
+            </p>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="Predict" class="btn" style="width: auto; padding: 12px 24px; font-size: 16px;">Go to
+                    Forecasting Tool</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; Predicting Residential Electricity Consumption || All Rights Reserved</p>
+    </footer>
+
+</body>
+
+</html>
