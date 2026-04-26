@@ -1,57 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Predicting-Residential-Electricity-Consumption-Using-CNN-BiLSTM-SA-Neural-Networks</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='default.css')   }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Predicting Residential Electricity Consumption — CNN-BiLSTM-SA</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='default.css') }}">
 </head>
-
 <body>
 
-    <header>
-        <div class="header-container">
-            <div class="logo">
-                <h2>Predicting Residential Electricity Consumption</h2>
-            </div>
-            <nav>
-                <ul>
-                    <li><a href="index" class="active">Home</a></li>
-                    <li><a href="AdminLogin">Admin Login</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+<header>
+  <div class="header-container">
+    <div class="logo">
+      <h2>Predicting Residential Electricity Consumption</h2>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="index" class="active">Home</a></li>
+        <li><a href="AdminLogin">Admin Login</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
 
-    <main class="wrapper">
-        <div class="card">
-            <div class="featured-image-container">
-                <img src="{{ url_for('static', filename='images/webalgoimg.png') }}"
-                    alt="Electricity Forecasting Graphic">
-            </div>
+<main class="wrapper">
+  <div class="card">
+    <div class="featured-image-container">
+      {% include 'cnn_bilstm_attention_animation.html' %}
+    </div>
 
-            <h1 class="card-title">Predicting Residential Electricity Consumption Using CNN-BiLSTM-SA Neural Networks
-            </h1>
+    <h1 class="card-title">Predicting Residential Electricity Consumption Using CNN-BiLSTM-SA Neural Networks</h1>
 
-            <p>
-                As global population growth and the use of household appliances increase, residential
-                electricity consumption has surged, leading to challenges in maintaining a balanced electrical load.
-                This surge often results in localized and intermittent power outages, adversely affecting residential
-                electricity reliability and the profitability of power supply companies.
-            </p>
-            <p>
-                Addressing this, we propose a novel CNN-BiLSTM-SA model, combining Convolutional Neural Network (CNN),
-                Bidirectional Long Short-Term Memory (BiLSTM), and Self-Attention (SA) mechanisms, to accurately
-                predict residential electricity consumption.
-            </p>
-        </div>
-    </main>
+    <p>
+      As global population growth and the use of household appliances increase, residential electricity consumption
+      has surged, leading to challenges in maintaining a balanced electrical load. This surge often results in
+      localized and intermittent power outages, adversely affecting residential electricity reliability and the
+      profitability of power supply companies.
+    </p>
+    <p>
+      Addressing this, we propose a novel CNN-BiLSTM-SA model, combining Convolutional Neural Network (CNN),
+      Bidirectional Long Short-Term Memory (BiLSTM), and Self-Attention (SA) mechanisms, to accurately predict
+      residential electricity consumption.
+    </p>
+  </div>
+</main>
 
-    <footer>
-        <p>&copy; Predicting Residential Electricity Consumption || All Rights Reserved</p>
-    </footer>
+<footer>
+  <p>&copy; Predicting Residential Electricity Consumption &nbsp;||&nbsp; All Rights Reserved</p>
+</footer>
 
 </body>
-
 </html>

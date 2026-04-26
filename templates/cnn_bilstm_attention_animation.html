@@ -1,0 +1,345 @@
+
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  .wrap{
+    padding:1.5rem 1rem 1rem;
+    font-family:var(--font-body, system-ui, sans-serif);
+    --color-background-primary: #ffffff;
+    --color-border-secondary: #cbd5e1;
+    --color-border-primary: #94a3b8;
+    --color-text-primary: #0f172a;
+    --color-text-secondary: #475569;
+    --color-text-tertiary: #64748b;
+  }
+  .caption{font-size:11px;color:var(--color-text-tertiary);text-align:center;margin-top:1rem;letter-spacing:.3px}
+
+  /* Pipeline layout */
+  .pipe{display:flex;flex-direction:row;align-items:stretch;gap:0;width:100%}
+  .block{display:flex;flex-direction:column;align-items:center;flex:1 1 0;min-width:0}
+
+  /* Cards */
+  .pcard{
+    width:100%;flex:1;border-radius:12px;
+    border:1px solid var(--color-border-secondary);
+    background:var(--color-background-primary);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    padding:14px 10px 12px;
+    display:flex;flex-direction:column;
+    transition:transform .18s,box-shadow .18s;
+    animation:fadeUp .5s ease both;
+    position:relative;overflow:hidden;
+  }
+  .pcard:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+  /* Top colored bar */
+  .pcard::before{content:'';display:block;height:3px;border-radius:3px;margin-bottom:12px;width:100%}
+  .c-blue::before{background:#378ADD}.c-teal::before{background:#1D9E75}
+  .c-amber::before{background:#BA7517}.c-purple::before{background:#7F77DD}
+  .c-coral::before{background:#D85A30}
+
+  /* Step badge */
+  .badge{display:inline-block;font-size:9px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;padding:2px 8px;border-radius:20px;margin-bottom:6px;width:fit-content}
+  .c-blue .badge{background:#B5D4F4;color:#042C53}
+  .c-teal .badge{background:#9FE1CB;color:#04342C}
+  .c-amber .badge{background:#FAC775;color:#412402}
+  .c-purple .badge{background:#CECBF6;color:#26215C}
+  .c-coral .badge{background:#F5C4B3;color:#4A1B0C}
+  @media(prefers-color-scheme:dark){
+    .c-blue .badge{background:#0C447C;color:#B5D4F4}
+    .c-teal .badge{background:#085041;color:#9FE1CB}
+    .c-amber .badge{background:#633806;color:#FAC775}
+    .c-purple .badge{background:#3C3489;color:#CECBF6}
+    .c-coral .badge{background:#712B13;color:#F5C4B3}
+  }
+
+  .ptitle{font-size:12px;font-weight:500;color:var(--color-text-primary);line-height:1.3;margin-bottom:2px}
+  .psub{font-size:10px;color:var(--color-text-secondary);line-height:1.4;margin-bottom:10px}
+  .slabel{font-size:9px;color:var(--color-text-tertiary);font-weight:500;text-align:center;margin-top:6px;letter-spacing:.3px;text-transform:uppercase}
+  .vis{width:100%;height:62px;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0}
+
+  /* ── Arrow connector ── */
+  .conn-h{
+    display:flex;align-items:flex-start;flex-shrink:0;
+    padding-top:50px;
+    width:28px;position:relative;
+  }
+  /* SVG arrow track */
+  .arrow-svg{width:28px;height:16px;overflow:visible}
+  .arr-line{stroke:var(--color-border-primary);stroke-width:2;fill:none;stroke-linecap:round}
+  .arr-head{fill:none;stroke:var(--color-border-primary);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  /* travelling dot */
+  .dot{r:3.5;animation:travel 1.4s linear infinite}
+  @keyframes travel{
+    0%{cx:2;opacity:0}
+    15%{opacity:1}
+    85%{opacity:1}
+    100%{cx:26;opacity:0}
+  }
+  .d1{fill:#378ADD;animation-delay:0s}
+  .d2{fill:#1D9E75;animation-delay:.47s}
+  .d3{fill:#BA7517;animation-delay:.94s}
+
+  /* ── DB vis ── */
+  .db-wrap{display:flex;align-items:center;gap:6px}
+  .db-stack{display:flex;flex-direction:column;align-items:center;gap:3px}
+  .db-disk{width:26px;height:8px;border-radius:50%;background:#378ADD}
+  .db-disk:nth-child(2){opacity:.55}.db-disk:nth-child(3){opacity:.28}
+  .grid-icon{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,6px);gap:1.5px;padding:3px;border:1px solid #378ADD;border-radius:4px;background:var(--color-background-primary)}
+  .grid-icon div{background:#B5D4F4;border-radius:1px}
+  .grid-icon div:nth-child(-n+2){background:#378ADD}
+
+  /* ── CNN bars ── */
+  .bar-wrap{display:flex;align-items:flex-end;gap:3px;height:50px}
+  .bar{width:11px;border-radius:3px 3px 0 0;animation:barGrow .7s ease both}
+  @keyframes barGrow{from{height:0}to{height:var(--h)}}
+
+  /* ── BiLSTM ── */
+  .bilstm{display:flex;flex-direction:column;gap:5px}
+  .lstm-row{display:flex;align-items:center;gap:3px}
+  .lcell{width:15px;height:15px;border-radius:4px;animation:pulse 1.8s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+  /* ── Attention ── */
+  .attn-grid{display:grid;grid-template-columns:repeat(5,10px);grid-template-rows:repeat(5,10px);gap:2px}
+  .ac{border-radius:2px;animation:attnFade 2s ease-in-out infinite}
+  @keyframes attnFade{0%,100%{opacity:.9}50%{opacity:.3}}
+
+  /* ── Dense ── */
+  .dense{display:flex;align-items:center;gap:4px}
+  .dlayer{display:flex;flex-direction:column;gap:5px}
+  .neuron{border-radius:50%;animation:neuroPulse 2s ease-in-out infinite}
+  @keyframes neuroPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+
+  /* Vertical connector for narrow */
+  .conn-v{display:none;flex-direction:column;align-items:center;padding:4px 0;width:100%}
+  .vline{width:2px;height:22px;border-radius:1px;position:relative;background:linear-gradient(180deg,var(--color-border-primary),var(--color-text-tertiary));animation:flowPulse 1.6s ease-in-out infinite}
+  @keyframes flowPulse{0%,100%{opacity:.5}50%{opacity:1}}
+  .vline::after{content:'';position:absolute;bottom:-5px;left:-4px;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid var(--color-text-tertiary)}
+  .vparticle{width:5px;height:5px;border-radius:50%;position:absolute;left:50%;transform:translateX(-50%);animation:travelV 1.6s linear infinite}
+  @keyframes travelV{from{top:-4px;opacity:0}20%,80%{opacity:1}to{top:calc(100% + 4px);opacity:0}}
+
+  @media(max-width:460px){
+    .pipe{flex-direction:column;align-items:stretch}
+    .block{flex-direction:row;align-items:center;gap:12px;flex:none}
+    .pcard{flex:1}
+    .slabel{writing-mode:vertical-rl;text-orientation:mixed;margin-top:0;margin-left:0;width:14px;flex-shrink:0}
+    .conn-h{display:none}
+    .conn-v{display:flex}
+    .vline{height:18px}
+  }
+</style>
+
+<div class="wrap">
+  <h2 class="sr-only">CNN-BiLSTM Self-Attention pipeline for electricity forecasting. Five stages: Input Data, CNN, BiLSTM, Self-Attention, Dense Layer.</h2>
+  <div class="pipe">
+
+    <!-- Step 1 -->
+    <div class="block">
+      <div class="pcard c-blue">
+        <span class="badge">Step 1</span>
+        <p class="ptitle">Input data</p>
+        <p class="psub">Time-series electricity</p>
+        <div class="vis">
+          <div class="db-wrap">
+            <div class="db-stack">
+              <div class="db-disk"></div><div class="db-disk"></div><div class="db-disk"></div>
+            </div>
+            <div class="grid-icon">
+              <div></div><div></div><div></div><div></div><div></div><div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="slabel">Input</p>
+    </div>
+
+    <!-- Arrow 1→2 -->
+    <div class="conn-h">
+      <svg class="arrow-svg" viewBox="0 0 28 8" xmlns="http://www.w3.org/2000/svg">
+        <line class="arr-line" x1="2" y1="4" x2="22" y2="4"/>
+        <polyline class="arr-head" points="18,1 23,4 18,7"/>
+        <circle class="dot d1" cy="4"/>
+        <circle class="dot d2" cy="4"/>
+        <circle class="dot d3" cy="4"/>
+      </svg>
+    </div>
+    <div class="conn-v">
+      <div class="vline"><div class="vparticle d1"></div><div class="vparticle d2"></div></div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="block">
+      <div class="pcard c-teal">
+        <span class="badge">Step 2</span>
+        <p class="ptitle">CNN</p>
+        <p class="psub">Local pattern extraction</p>
+        <div class="vis">
+          <div class="bar-wrap">
+            <div class="bar" style="--h:46px;background:#1D9E75;animation-delay:.4s"></div>
+            <div class="bar" style="--h:30px;background:#5DCAA5;animation-delay:.5s"></div>
+            <div class="bar" style="--h:54px;background:#1D9E75;animation-delay:.6s"></div>
+            <div class="bar" style="--h:22px;background:#9FE1CB;animation-delay:.7s"></div>
+            <div class="bar" style="--h:38px;background:#1D9E75;animation-delay:.8s"></div>
+          </div>
+        </div>
+      </div>
+      <p class="slabel">CNN</p>
+    </div>
+
+    <!-- Arrow 2→3 -->
+    <div class="conn-h">
+      <svg class="arrow-svg" viewBox="0 0 28 8" xmlns="http://www.w3.org/2000/svg">
+        <line class="arr-line" x1="2" y1="4" x2="22" y2="4"/>
+        <polyline class="arr-head" points="18,1 23,4 18,7"/>
+        <circle class="dot d2" cy="4"/>
+        <circle class="dot d3" cy="4"/>
+      </svg>
+    </div>
+    <div class="conn-v">
+      <div class="vline"><div class="vparticle d2"></div><div class="vparticle d3"></div></div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="block">
+      <div class="pcard c-amber">
+        <span class="badge">Step 3</span>
+        <p class="ptitle">BiLSTM</p>
+        <p class="psub">Forward &amp; backward pass</p>
+        <div class="vis">
+          <div class="bilstm">
+            <div class="lstm-row">
+              <span style="font-size:10px;font-weight:700;color:#BA7517">→</span>
+              <div class="lcell" style="background:#BA7517;animation-delay:0s"></div>
+              <div class="lcell" style="background:#BA7517;animation-delay:.3s"></div>
+              <div class="lcell" style="background:#BA7517;animation-delay:.6s"></div>
+              <span style="font-size:9px;color:#BA7517;font-weight:700">···</span>
+            </div>
+            <div class="lstm-row">
+              <span style="font-size:10px;font-weight:700;color:#EF9F27">←</span>
+              <div class="lcell" style="background:#EF9F27;animation-delay:.9s"></div>
+              <div class="lcell" style="background:#EF9F27;animation-delay:1.2s"></div>
+              <div class="lcell" style="background:#EF9F27;animation-delay:1.5s"></div>
+              <span style="font-size:9px;color:#EF9F27;font-weight:700">···</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="slabel">BiLSTM</p>
+    </div>
+
+    <!-- Arrow 3→4 -->
+    <div class="conn-h">
+      <svg class="arrow-svg" viewBox="0 0 28 8" xmlns="http://www.w3.org/2000/svg">
+        <line class="arr-line" x1="2" y1="4" x2="22" y2="4"/>
+        <polyline class="arr-head" points="18,1 23,4 18,7"/>
+        <circle class="dot d3" cy="4"/>
+        <circle class="dot d1" cy="4"/>
+      </svg>
+    </div>
+    <div class="conn-v">
+      <div class="vline"><div class="vparticle d3"></div><div class="vparticle d1"></div></div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="block">
+      <div class="pcard c-purple">
+        <span class="badge">Step 4</span>
+        <p class="ptitle">Self-attention</p>
+        <p class="psub">Feature weighting</p>
+        <div class="vis">
+          <div>
+            <p style="font-size:8px;font-weight:500;color:#7F77DD;text-align:center;margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px">Attention</p>
+            <div class="attn-grid" id="attn"></div>
+          </div>
+        </div>
+      </div>
+      <p class="slabel">Attention</p>
+    </div>
+
+    <!-- Arrow 4→5 -->
+    <div class="conn-h">
+      <svg class="arrow-svg" viewBox="0 0 28 8" xmlns="http://www.w3.org/2000/svg">
+        <line class="arr-line" x1="2" y1="4" x2="22" y2="4"/>
+        <polyline class="arr-head" points="18,1 23,4 18,7"/>
+        <circle class="dot d1" cy="4"/>
+        <circle class="dot d2" cy="4"/>
+      </svg>
+    </div>
+    <div class="conn-v">
+      <div class="vline"><div class="vparticle d1"></div><div class="vparticle d2"></div></div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="block">
+      <div class="pcard c-coral">
+        <span class="badge">Step 5</span>
+        <p class="ptitle">Dense layer</p>
+        <p class="psub">Forecast output</p>
+        <div class="vis">
+          <div class="dense">
+            <div class="dlayer">
+              <div class="neuron" style="width:11px;height:11px;background:#D85A30;animation-delay:0s"></div>
+              <div class="neuron" style="width:11px;height:11px;background:#D85A30;animation-delay:.2s"></div>
+              <div class="neuron" style="width:11px;height:11px;background:#D85A30;animation-delay:.4s"></div>
+              <div class="neuron" style="width:11px;height:11px;background:#D85A30;animation-delay:.6s"></div>
+            </div>
+            <svg width="20" height="52" style="overflow:visible;flex-shrink:0">
+              <line x1="0" y1="6"  x2="20" y2="13" stroke="#D85A30" stroke-width=".7" opacity=".45"/>
+              <line x1="0" y1="6"  x2="20" y2="26" stroke="#D85A30" stroke-width=".7" opacity=".45"/>
+              <line x1="0" y1="6"  x2="20" y2="39" stroke="#D85A30" stroke-width=".7" opacity=".45"/>
+              <line x1="0" y1="19" x2="20" y2="13" stroke="#D85A30" stroke-width=".7" opacity=".45"/>
+              <line x1="0" y1="19" x2="20" y2="26" stroke="#D85A30" stroke-width=".7" opacity=".45"/>
+              <line x1="0" y1="19" x2="20" y2="39" stroke="#D85A30" stroke-width=".7" opacity=".45"/>
+              <line x1="0" y1="32" x2="20" y2="13" stroke="#D85A30" stroke-width=".7" opacity=".45"/>
+              <line x1="0" y1="32" x2="20" y2="26" stroke="#D85A30" stroke-width=".7" opacity=".45"/>
+              <line x1="0" y1="32" x2="20" y2="39" stroke="#D85A30" stroke-width=".7" opacity=".45"/>
+              <line x1="0" y1="45" x2="20" y2="13" stroke="#D85A30" stroke-width=".7" opacity=".45"/>
+              <line x1="0" y1="45" x2="20" y2="26" stroke="#D85A30" stroke-width=".7" opacity=".45"/>
+              <line x1="0" y1="45" x2="20" y2="39" stroke="#D85A30" stroke-width=".7" opacity=".45"/>
+            </svg>
+            <div class="dlayer">
+              <div class="neuron" style="width:12px;height:12px;background:#D85A30;animation-delay:.1s"></div>
+              <div class="neuron" style="width:12px;height:12px;background:#D85A30;animation-delay:.3s"></div>
+              <div class="neuron" style="width:12px;height:12px;background:#D85A30;animation-delay:.5s"></div>
+            </div>
+            <svg width="14" height="39" style="overflow:visible;flex-shrink:0">
+              <line x1="0" y1="7"  x2="14" y2="19" stroke="#D85A30" stroke-width=".7" opacity=".55"/>
+              <line x1="0" y1="19" x2="14" y2="19" stroke="#D85A30" stroke-width=".7" opacity=".55"/>
+              <line x1="0" y1="32" x2="14" y2="19" stroke="#D85A30" stroke-width=".7" opacity=".55"/>
+            </svg>
+            <div class="neuron" style="width:15px;height:15px;background:#993C1D;animation-delay:.2s;flex-shrink:0"></div>
+          </div>
+        </div>
+      </div>
+      <p class="slabel">Output</p>
+    </div>
+
+  </div>
+  <p class="caption">CNN–BiLSTM–Self-Attention pipeline · Electricity forecasting</p>
+</div>
+
+<script>
+  const attn = document.getElementById('attn');
+  const colors = [
+    ['#EEEDFE','#CECBF6','#AFA9EC','#7F77DD','#534AB7'],
+    ['#CECBF6','#7F77DD','#EEEDFE','#AFA9EC','#3C3489'],
+    ['#AFA9EC','#EEEDFE','#7F77DD','#CECBF6','#AFA9EC'],
+    ['#7F77DD','#AFA9EC','#534AB7','#EEEDFE','#7F77DD'],
+    ['#534AB7','#7F77DD','#3C3489','#EEEDFE','#CECBF6']
+  ];
+  const cells=[];
+  for(let r=0;r<5;r++) for(let c=0;c<5;c++){
+    const d=document.createElement('div');
+    d.className='ac';
+    d.style.background=colors[r][c];
+    d.style.animationDelay=(r*5+c)*.07+'s';
+    attn.appendChild(d);
+    cells.push({el:d,r,c});
+  }
+  setInterval(()=>{
+    cells.forEach(({el,r,c})=>{
+      el.style.background=colors[r][(c+Math.floor(Math.random()*3))%5];
+    });
+  },2400);
+</script>

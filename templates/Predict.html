@@ -1,76 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Predicting Residential Electricity Consumption</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='default.css') }}">
-    <script>
-        function validate(formObj) {
-            if (formObj.t1.value.trim().length === 0) {
-                alert("Please select a file to upload.");
-                formObj.t1.focus();
-                return false;
-            }
-            return true;
-        }
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forecasting Tool — Predict Electricity Consumption</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='default.css') }}">
+  <script>
+    function validate(formObj) {
+      if (formObj.t1.value.trim().length === 0) {
+        alert("Please select a file to upload.");
+        formObj.t1.focus();
+        return false;
+      }
+      return true;
+    }
+  </script>
 </head>
-
 <body>
 
-    <header>
-        <div class="header-container">
-            <div class="logo">
-                <h2>Predicting Residential Electricity Consumption</h2>
-            </div>
-            <nav>
-                <ul>
-                    <li><a href="Predict" class="active">Forecasting Tool</a></li>
-                    <li><a href="index">Logout</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+<header>
+  <div class="header-container">
+    <div class="logo">
+      <h2>Predicting Residential Electricity Consumption</h2>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="Predict" class="active">Forecasting Tool</a></li>
+        <li><a href="index">Logout</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
 
-    <main class="wrapper">
-        <div class="card">
-            <div class="featured-image-container">
-                <img src="{{ url_for('static', filename='images/webalgoimg.png') }}"
-                    alt="Electricity Forecasting Graphic">
-            </div>
+<main class="wrapper">
+  <div class="card">
+    <div class="featured-image-container">
+      {% include 'cnn_bilstm_attention_animation.html' %}
+    </div>
 
-            <h1 class="card-title">Forecasting Tool - Predict Electricity Consumption</h1>
+    <h1 class="card-title">Forecasting Tool — Predict Electricity Consumption</h1>
 
-            {% if msg %}
-            <div class="message success">
-                {{ msg|safe }}
-            </div>
-            {% endif %}
+    {% if msg %}
+    <div class="message success">
+      {{ msg|safe }}
+    </div>
+    {% endif %}
 
-            <p>
-                Upload your dataset to predict residential electricity consumption using the CNN-BiLSTM-SA Neural
-                Network model. This model combines Convolutional Neural Networks, Bidirectional LSTM, and Self-Attention
-                mechanisms for accurate forecasting.
-            </p>
+    <p>
+      Upload your dataset to predict residential electricity consumption using the CNN-BiLSTM-SA Neural Network
+      model. This model combines Convolutional Neural Networks, Bidirectional LSTM, and Self-Attention mechanisms
+      for accurate forecasting.
+    </p>
 
-            <form name="f1" method="post" action="/PredictAction" enctype="multipart/form-data"
-                onsubmit="return validate(this);" style="max-width: 500px; margin: 0 auto;">
-                <div class="form-group">
-                    <label class="form-label" for="t1">Upload Test Data (CSV/Excel)</label>
-                    <input type="file" id="t1" name="t1" class="form-control" style="background: transparent;" />
-                </div>
+    <form
+      name="f1"
+      method="post"
+      action="/PredictAction"
+      enctype="multipart/form-data"
+      onsubmit="return validate(this);"
+      class="predict-form"
+    >
+      <div class="form-group">
+        <label class="form-label" for="t1">Upload Test Data (CSV / Excel)</label>
+        <input
+          type="file"
+          id="t1"
+          name="t1"
+          class="form-control"
+          accept=".csv,.xls,.xlsx"
+        />
+      </div>
 
-                <button type="submit" class="btn">Run Prediction</button>
-            </form>
-        </div>
-    </main>
+      <button type="submit" class="btn">Run Prediction</button>
+    </form>
+  </div>
+</main>
 
-    <footer>
-        <p>&copy; Predicting Residential Electricity Consumption || All Rights Reserved</p>
-    </footer>
+<footer>
+  <p>&copy; Predicting Residential Electricity Consumption &nbsp;||&nbsp; All Rights Reserved</p>
+</footer>
 
 </body>
-
 </html>
