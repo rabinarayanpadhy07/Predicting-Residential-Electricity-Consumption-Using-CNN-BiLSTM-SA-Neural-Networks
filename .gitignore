@@ -1,2 +1,8 @@
 Dataset/household_power_consumption.csv
 Dataset/testData.csv
+__pycache__/
+.ipynb_checkpoints/
+.jupyter-runtime/
+.matplotlib/
+*.log
+Thumbs.db
