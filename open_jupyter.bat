@@ -11,6 +11,6 @@ if exist ".venv\Scripts\python.exe" (
     set "PYTHON=python"
 )
 
-echo Starting Residential Electricity Consumption Prediction UI...
-%PYTHON% app.py
+echo Opening Jupyter Notebook for Residential Electricity Consumption Prediction...
+"%PYTHON%" -m jupyter notebook "ResElec-Pred (CNN-BiLSTM-SA).ipynb"
 pause
