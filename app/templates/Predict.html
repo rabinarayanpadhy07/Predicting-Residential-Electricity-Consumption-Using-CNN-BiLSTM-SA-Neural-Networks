@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forecasting Tool - Predict Electricity Consumption</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='default.css') }}">
+  <script>
+    function validate(formObj) {
+      if (formObj.t1.value.trim().length === 0) {
+        alert("Please select a CSV or Excel file to upload.");
+        formObj.t1.focus();
+        return false;
+      }
+      return true;
+    }
+  </script>
+</head>
+<body>
+
+<header>
+  <div class="header-container">
+    <div class="logo">
+      <h2>Predicting Residential Electricity Consumption</h2>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('main.index') }}">Home</a></li>
+        <li><a href="{{ url_for('main.predict_view') }}" class="active">Forecasting Tool</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="wrapper dashboard-wrapper">
+  <div class="card">
+    <div class="featured-image-container">
+      {% include 'cnn_bilstm_attention_animation.html' %}
+    </div>
+
+    <h1 class="card-title">Forecasting Tool - Predict Electricity Consumption</h1>
+
+    {% if errors %}
+    <div class="message error">
+      {% for error in errors %}
+        <div>{{ error }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <p>
+      Upload residential power-consumption records and select a trained neural model for inference.
+    </p>
+
+    <form
+      name="f1"
+      method="post"
+      action="{{ url_for('main.predict_action') }}"
+      enctype="multipart/form-data"
+      onsubmit="return validate(this);"
+      class="predict-form"
+    >
+      <div class="form-group">
+        <label class="form-label" for="model_key">Model</label>
+        <select id="model_key" name="model_key" class="form-control">
+          {% for key, model in models.items() %}
+          <option value="{{ key }}" {% if key == selected_model %}selected{% endif %}>{{ model.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="t1">Upload Test Data (CSV / Excel)</label>
+        <input
+          type="file"
+          id="t1"
+          name="t1"
+          class="form-control"
+          accept=".csv,.xls,.xlsx"
+        />
+      </div>
+
+      <button type="submit" class="btn">Run Prediction</button>
+    </form>
+  </div>
+
+  {% if result and result.ok %}
+  <section class="dashboard-section">
+    <div class="dashboard-header">
+      <div>
+        <h2>Prediction Dashboard</h2>
+        <p>{{ result.model_label }} | {{ result.metadata.source }}</p>
+      </div>
+      <div class="download-actions">
+        <button type="button" class="btn btn-inline btn-secondary" onclick="downloadCsv()">Download CSV</button>
+        <button type="button" class="btn btn-inline" onclick="downloadReport()">Download Report</button>
+      </div>
+    </div>
+
+    <div class="summary-grid">
+      <div class="metric-card">
+        <span>Total Rows</span>
+        <strong>{{ result.statistics.total_rows }}</strong>
+      </div>
+      <div class="metric-card">
+        <span>Min Prediction</span>
+        <strong>{{ "%.4f"|format(result.statistics.min_prediction) }}</strong>
+      </div>
+      <div class="metric-card">
+        <span>Max Prediction</span>
+        <strong>{{ "%.4f"|format(result.statistics.max_prediction) }}</strong>
+      </div>
+      <div class="metric-card">
+        <span>Average Prediction</span>
+        <strong>{{ "%.4f"|format(result.statistics.average_prediction) }}</strong>
+      </div>
+    </div>
+
+    {% if result.metrics %}
+    <div class="metrics-panel">
+      <h3>Evaluation Metrics</h3>
+      <div class="summary-grid compact">
+        {% for key, value in result.metrics.items() %}
+        <div class="metric-card">
+          <span>{{ key }}</span>
+          <strong>{% if value is not none %}{{ "%.4f"|format(value) }}{% else %}N/A{% endif %}</strong>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="chart-panel">
+      <div class="chart-header">
+        <h3>Actual vs Predicted Consumption</h3>
+        <div class="chart-legend">
+          {% if result.metrics %}
+          <span><i class="legend-dot actual-dot"></i>Actual</span>
+          {% endif %}
+          <span><i class="legend-dot predicted-dot"></i>Predicted</span>
+        </div>
+      </div>
+      <div class="chart-shell">
+        <canvas id="actualPredictedChart" width="1080" height="420" aria-label="Actual vs predicted consumption chart"></canvas>
+      </div>
+    </div>
+
+    <div class="table-panel">
+      <h3>Prediction Records</h3>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Active Power</th>
+              <th>Reactive Power</th>
+              <th>Voltage</th>
+              <th>Intensity</th>
+              {% if result.metrics %}
+              <th>Actual Consumption</th>
+              {% endif %}
+              <th>Predicted Consumption</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in result.predictions %}
+            <tr>
+              <td>{{ row.timestamp }}</td>
+              <td>{{ "%.4f"|format(row.Global_active_power) }}</td>
+              <td>{{ "%.4f"|format(row.Global_reactive_power) }}</td>
+              <td>{{ "%.4f"|format(row.Voltage) }}</td>
+              <td>{{ "%.4f"|format(row.Global_intensity) }}</td>
+              {% if result.metrics %}
+              <td>{% if row.actual_consumption is not none %}{{ "%.4f"|format(row.actual_consumption) }}{% else %}N/A{% endif %}</td>
+              {% endif %}
+              <td>{{ "%.4f"|format(row.predicted_consumption) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="research-grid">
+      <div class="dashboard-panel">
+        <h3>Model Comparison</h3>
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Epochs</th>
+              <th>Best Val Loss</th>
+              <th>Final Train Loss</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in result.model_comparison %}
+            <tr>
+              <td>{{ row.label }}</td>
+              <td>{{ row.epochs }}</td>
+              <td>{% if row.best_val_loss is not none %}{{ "%.6f"|format(row.best_val_loss) }}{% else %}N/A{% endif %}</td>
+              <td>{% if row.final_train_loss is not none %}{{ "%.6f"|format(row.final_train_loss) }}{% else %}N/A{% endif %}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+</main>
+
+<footer>
+  <p>&copy; Predicting Residential Electricity Consumption &nbsp;||&nbsp; All Rights Reserved</p>
+</footer>
+
+{% if result and result.ok %}
+<script>
+  const predictionResult = {{ result|tojson }};
+  const rows = predictionResult.predictions;
+
+  function formatNumber(value) {
+    return Number(value).toFixed(4);
+  }
+
+  function drawActualPredictedChart() {
+    const canvas = document.getElementById("actualPredictedChart");
+    if (!canvas || rows.length === 0) return;
+
+    const ctx = canvas.getContext("2d");
+    const rect = canvas.getBoundingClientRect();
+    const ratio = window.devicePixelRatio || 1;
+    canvas.width = Math.max(720, Math.floor(rect.width * ratio));
+    canvas.height = Math.floor(420 * ratio);
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+    const width = canvas.width / ratio;
+    const height = canvas.height / ratio;
+    const padding = { top: 24, right: 24, bottom: 58, left: 64 };
+    const plotWidth = width - padding.left - padding.right;
+    const plotHeight = height - padding.top - padding.bottom;
+    const predicted = rows.map(row => Number(row.predicted_consumption));
+    const actual = rows
+      .map(row => row.actual_consumption === null ? null : Number(row.actual_consumption));
+    const values = predicted.concat(actual.filter(value => value !== null));
+    const minValue = Math.min(...values, 0);
+    const maxValue = Math.max(...values, 1);
+    const range = maxValue - minValue || 1;
+    const yMin = Math.max(0, minValue - range * 0.1);
+    const yMax = maxValue + range * 0.12;
+    const pointX = index => padding.left + (rows.length === 1 ? plotWidth / 2 : (index / (rows.length - 1)) * plotWidth);
+    const pointY = value => padding.top + (1 - ((value - yMin) / (yMax - yMin))) * plotHeight;
+
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.strokeStyle = "rgba(203,213,225,0.85)";
+    ctx.lineWidth = 1;
+    ctx.fillStyle = "#64748b";
+    ctx.font = "12px DM Sans, Arial, sans-serif";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+
+    for (let tick = 0; tick <= 4; tick += 1) {
+      const value = yMin + ((yMax - yMin) * tick) / 4;
+      const y = pointY(value);
+      ctx.beginPath();
+      ctx.moveTo(padding.left, y);
+      ctx.lineTo(width - padding.right, y);
+      ctx.stroke();
+      ctx.fillText(value.toFixed(2), padding.left - 10, y);
+    }
+
+    ctx.strokeStyle = "#0f172a";
+    ctx.beginPath();
+    ctx.moveTo(padding.left, padding.top);
+    ctx.lineTo(padding.left, height - padding.bottom);
+    ctx.lineTo(width - padding.right, height - padding.bottom);
+    ctx.stroke();
+
+    function drawSeries(series, color, dash = []) {
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash(dash);
+      ctx.beginPath();
+      let started = false;
+      series.forEach((value, index) => {
+        if (value === null || Number.isNaN(value)) return;
+        const x = pointX(index);
+        const y = pointY(value);
+        if (!started) {
+          ctx.moveTo(x, y);
+          started = true;
+        } else {
+          ctx.lineTo(x, y);
+        }
+      });
+      ctx.stroke();
+      ctx.setLineDash([]);
+      series.forEach((value, index) => {
+        if (value === null || Number.isNaN(value)) return;
+        ctx.beginPath();
+        ctx.arc(pointX(index), pointY(value), 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.restore();
+    }
+
+    if (actual.some(value => value !== null)) {
+      drawSeries(actual, "#0f766e");
+    }
+    drawSeries(predicted, "#3b52f5", [6, 5]);
+
+    ctx.fillStyle = "#475569";
+    ctx.font = "12px DM Sans, Arial, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    const labelStep = Math.max(1, Math.ceil(rows.length / 6));
+    rows.forEach((row, index) => {
+      if (index % labelStep !== 0 && index !== rows.length - 1) return;
+      const x = pointX(index);
+      ctx.save();
+      ctx.translate(x, height - padding.bottom + 16);
+      ctx.rotate(-Math.PI / 9);
+      ctx.fillText(row.timestamp, 0, 0);
+      ctx.restore();
+    });
+  }
+
+  function downloadBlob(filename, content, type) {
+    const blob = new Blob([content], { type });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  }
+
+  function downloadCsv() {
+    const hasActual = rows.some(row => row.actual_consumption !== null);
+    const header = ["timestamp", "Global_active_power", "Global_reactive_power", "Voltage", "Global_intensity"];
+    if (hasActual) header.push("actual_consumption");
+    header.push("predicted_consumption");
+    const lines = [header.join(",")];
+    rows.forEach(row => {
+      lines.push(header.map(key => JSON.stringify(row[key] ?? "")).join(","));
+    });
+    downloadBlob("electricity_predictions.csv", lines.join("\n"), "text/csv");
+  }
+
+  function downloadReport() {
+    const stats = predictionResult.statistics;
+    const metrics = predictionResult.metrics || {};
+    const lines = [
+      "Residential Electricity Consumption Prediction Report",
+      `Model: ${predictionResult.model_label}`,
+      `Source: ${predictionResult.metadata.source}`,
+      `Rows: ${stats.total_rows}`,
+      `Minimum prediction: ${formatNumber(stats.min_prediction)}`,
+      `Maximum prediction: ${formatNumber(stats.max_prediction)}`,
+      `Average prediction: ${formatNumber(stats.average_prediction)}`,
+      "",
+      "Evaluation Metrics",
+      ...Object.entries(metrics).map(([key, value]) => `${key}: ${value === null ? "N/A" : formatNumber(value)}`)
+    ];
+    downloadBlob("electricity_prediction_report.txt", lines.join("\n"), "text/plain");
+  }
+
+  window.addEventListener("load", drawActualPredictedChart);
+  window.addEventListener("resize", drawActualPredictedChart);
+</script>
+{% endif %}
+
+</body>
+</html>

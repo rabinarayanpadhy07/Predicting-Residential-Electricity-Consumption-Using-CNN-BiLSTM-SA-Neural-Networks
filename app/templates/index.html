@@ -15,8 +15,8 @@
     </div>
     <nav>
       <ul>
-        <li><a href="index" class="active">Home</a></li>
-        <li><a href="AdminLogin">Admin Login</a></li>
+        <li><a href="{{ url_for('main.index') }}" class="active">Home</a></li>
+        <li><a href="{{ url_for('main.predict_view') }}">Forecasting Tool</a></li>
       </ul>
     </nav>
   </div>

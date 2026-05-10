@@ -1,8 +1,13 @@
-Dataset/household_power_consumption.csv
-Dataset/testData.csv
+dataset/household_power_consumption.csv
+dataset/testData.csv
+.env
+.venv/
+.venv*/
 __pycache__/
+*.pyc
 .ipynb_checkpoints/
 .jupyter-runtime/
 .matplotlib/
+static/reports/
 *.log
 Thumbs.db
